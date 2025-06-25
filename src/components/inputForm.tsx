@@ -22,8 +22,9 @@ export function InputForm() {
         setLiquidos([...liquidos, { nome: "Água", densidade: 1000, altura: 0 }]);
     };
    
-
-    const atualizarLiquido = (index: number, key: keyof Liquido, valor: any) => {
+  type AtualizarLiquidoKey = keyof Liquido;
+    
+    const atualizarLiquido = (index: number, key: keyof Liquido, valor: string | number) => {
         const copia = [...liquidos];
         copia[index][key] = key === "densidade" || key === "altura" ? parseFloat(valor) : valor;
         setLiquidos(copia);
