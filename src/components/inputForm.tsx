@@ -24,7 +24,7 @@ const coresLiquidos: Record<string, string> = {
   Etanol: "#16a34a",
 };
 
-function RecipienteVisual({ liquidos }: { liquidos: Liquido[] }) {
+ export function RecipienteVisual({ liquidos }: { liquidos: Liquido[] }) {
   const [animar, setAnimar] = useState<boolean[]>([]);
 
   useEffect(() => {
