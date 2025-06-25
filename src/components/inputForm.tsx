@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { Liquido, EntradaSimulador } from "../../types";
 import { calcularPressao } from "../../utils/calculoPressao";
 import { Resultado } from "./resultado";
