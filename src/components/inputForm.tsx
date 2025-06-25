@@ -1,20 +1,17 @@
 "use client";
 
-import { useState , useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Liquido, EntradaSimulador } from "../../types";
 import { calcularPressao } from "../../utils/calculoPressao";
 import { Resultado } from "./resultado";
 
 const liquidosPadrao = [
-    { nome: "Água", densidade: 1000 },
-    { nome: "Óleo", densidade: 850 },
-    { nome: "Mercúrio", densidade: 13500 },
-    { nome: "Glicerina", densidade: 1260 },
-    { nome: "Etanol", densidade: 789 },
-    
+  { nome: "Água", densidade: 1000 },
+  { nome: "Óleo", densidade: 850 },
+  { nome: "Mercúrio", densidade: 13500 },
+  { nome: "Glicerina", densidade: 1260 },
+  { nome: "Etanol", densidade: 789 },
 ];
-
-
 
 const coresLiquidos: Record<string, string> = {
   Água: "#3b82f6",
@@ -23,7 +20,8 @@ const coresLiquidos: Record<string, string> = {
   Glicerina: "#9333ea",
   Etanol: "#16a34a",
 };
- function RecipienteVisual({ liquidos }: { liquidos: Liquido[] }) {
+
+function RecipienteVisual({ liquidos }: { liquidos: Liquido[] }) {
   const [animar, setAnimar] = useState<boolean[]>([]);
 
   useEffect(() => {
@@ -81,15 +79,15 @@ const coresLiquidos: Record<string, string> = {
 }
 
 export function InputForm() {
-    const [liquidos, setLiquidos] = useState<Liquido[]>([]);
-    const [incluirPressaoAtmosferica, setIncluir] = useState(true);
-    const [resultado, setResultado] = useState<{ pressaoTotal: number; detalhes: string[] } | null>(null);
+  const [liquidos, setLiquidos] = useState<Liquido[]>([]);
+  const [incluirPressaoAtmosferica, setIncluir] = useState(true);
+  const [resultado, setResultado] = useState<{ pressaoTotal: number; detalhes: string[] } | null>(null);
 
-    const adicionarLiquido = () => {
-        setLiquidos([...liquidos, { nome: "Água", densidade: 1000, altura: 0 }]);
-    };
-   
-  type AtualizarLiquidoKey = keyof Liquido;
+  const adicionarLiquido = () => {
+    setLiquidos([...liquidos, { nome: "", densidade: 1000, altura: 0 }]);
+  };
+
+   type AtualizarLiquidoKey = keyof Liquido;
 
 const atualizarLiquido = (
   index: number,
@@ -107,64 +105,82 @@ const atualizarLiquido = (
   setLiquidos(copia);
 };
 
-    const calcular = () => {
+  const calcular = () => {
+    const dadosValidos = liquidos.every((l) => l.nome && l.densidade > 0 && l.altura > 0);
+    if (!dadosValidos) {
+      alert("Preencha todos os campos corretamente antes de calcular!");
+      return;
+    }
 
-        const dadosValidos = liquidos.every(l => l.nome && l.densidade > 0 && l.altura >= 0)
+    const entrada: EntradaSimulador = { liquidos, incluirPressaoAtmosferica };
+    const resultado = calcularPressao(entrada);
+    setResultado(resultado);
+  };
 
-        if (!dadosValidos) {
-            alert("Priencha todos os campos antes de calcular!")
-        }
+  return (
+    <div className="p-4 max-w-5xlxl mx-auto flex gap-8">
+      <div className="flex-col">{resultado && <Resultado resultado={resultado} />}</div>
 
-        const entrada: EntradaSimulador = { liquidos, incluirPressaoAtmosferica };
-        const resultado = calcularPressao(entrada);
+      <div className="flex-1 flex-col max-w-4xl ">
+        <h1 className="text-xl font-bold mb-4">Simulador de Pressão Hidrostática</h1>
 
-        setResultado(resultado);
-    };
+        {liquidos.map((l, i) => (
+          <div key={i} className="mb-2 p-2 border rounded flex flex-col gap-2">
+            <select
+              value={l.nome}
+              onChange={(e) => atualizarLiquido(i, "nome", e.target.value)}
+              className="p-1 bg-foreground/5 text-zinc-50 rounded"
+            >
+              <option value="" className="text-zinc-800">
+                Selecione o líquido
+              </option>
+              {liquidosPadrao.map((op) => (
+                <option className="text-zinc-800 bg-foreground/5" key={op.nome} value={op.nome}>
+                  {op.nome}
+                </option>
+              ))}
+            </select>
 
-    return (
-        <div className="p-4 max-w-2xl mx-auto">
-            <h1 className="text-xl font-bold mb-4">Simulador de Pressão Hidrostática</h1>
+            <input
+              type="number"
+              placeholder="Densidade (kg/m³)"
+              value={l.densidade}
+              onChange={(e) => atualizarLiquido(i, "densidade", e.target.value)}
+              className="p-1"
+              readOnly
+            />
 
-            {liquidos.map((l, i) => (
-                <div key={i} className="mb-2 p-2 border rounded flex  flex-col gap-4">
-                    <select value={l.nome} onChange={(e) => atualizarLiquido(i, "nome", e.target.value)}>
-                        <option className="bg-zinc-500" value="">Selecione o líquido</option>
-                        {liquidosPadrao.map((op) => (
-                            <option className="bg-zinc-700" key={op.nome} value={op.nome}>{op.nome}</option>
-                        ))}
-                    </select>
-                    <input
-                        type="number"
-                        placeholder="Densidade (kg/m³)"
-                        value={l.densidade}
-                        onChange={(e) => atualizarLiquido(i, "densidade", e.target.value)}
-                        className="ml-2"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Altura (m)"
-                        value={l.altura}
-                        onChange={(e) => atualizarLiquido(i, "altura", e.target.value)}
-                        className="ml-2"
-                    />
-                </div>
-            ))}
+            <input
+              type="number"
+              placeholder="Altura (m)"
+              value={isNaN(l.altura) ? '' : l.altura}
+              onChange={(e) => atualizarLiquido(i, "altura", e.target.value)}
+              className="p-1"
+              min={0}
+              step={0.01}
+            />
+          </div>
+        ))}
 
-            <button onClick={adicionarLiquido} className="bg-blue-500 text-white px-4 py-1 rounded mt-2">Adicionar líquido</button>
+        <button onClick={adicionarLiquido} className="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+          Adicionar líquido
+        </button>
 
-            <div className="my-4">
-                <label>
-                    <input type="checkbox" checked={incluirPressaoAtmosferica} onChange={(e) => setIncluir(e.target.checked)} />
-                    Incluir pressão atmosférica?
-                </label>
-            </div>
+        <div className="my-4">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={incluirPressaoAtmosferica} onChange={(e) => setIncluir(e.target.checked)} />
+            Incluir pressão atmosférica?
+          </label>
+        </div>
 
-            <button onClick={calcular} className="bg-green-500 text-white px-4 py-1 rounded">Calcular Pressão</button>
-        <div className="w-52">
-        <RecipienteVisual liquidos={liquidos} />
+        <button onClick={calcular} className="bg-green-500 text-white px-4 py-2 rounded">
+          Calcular Pressão
+        </button>
       </div>
 
-            {resultado && <Resultado resultado={resultado} />}
-        </div>
-    );
+      <div className="w-52">
+        <RecipienteVisual liquidos={liquidos} />
+      </div>
+    </div>
+  );
 }
