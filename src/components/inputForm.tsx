@@ -23,12 +23,22 @@ export function InputForm() {
     };
    
   type AtualizarLiquidoKey = keyof Liquido;
-    
-    const atualizarLiquido = (index: number, key:AtualizarLiquidoKey , valor: string | number) => {
-        const copia = [...liquidos];
-        copia[index][key] = key === "densidade" || key === "altura" ? parseFloat(valor as string) :valor as number ;
-        setLiquidos(copia);
-    };
+
+const atualizarLiquido = (
+  index: number,
+  key: AtualizarLiquidoKey,
+  valor: string | number
+) => {
+  const copia = [...liquidos];
+
+  if (key === "densidade" || key === "altura") {
+    copia[index][key] = parseFloat(valor as string) as number;
+  } else {
+    copia[index][key] = valor as string;
+  }
+
+  setLiquidos(copia);
+};
 
     const calcular = () => {
 
