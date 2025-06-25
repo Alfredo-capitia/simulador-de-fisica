@@ -23,8 +23,7 @@ const coresLiquidos: Record<string, string> = {
   Glicerina: "#9333ea",
   Etanol: "#16a34a",
 };
-
- export function RecipienteVisual({ liquidos }: { liquidos: Liquido[] }) {
+ function RecipienteVisual({ liquidos }: { liquidos: Liquido[] }) {
   const [animar, setAnimar] = useState<boolean[]>([]);
 
   useEffect(() => {
@@ -161,6 +160,9 @@ const atualizarLiquido = (
             </div>
 
             <button onClick={calcular} className="bg-green-500 text-white px-4 py-1 rounded">Calcular Pressão</button>
+        <div className="w-52">
+        <RecipienteVisual liquidos={liquidos} />
+      </div>
 
             {resultado && <Resultado resultado={resultado} />}
         </div>
