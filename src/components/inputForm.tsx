@@ -11,7 +11,75 @@ const liquidosPadrao = [
     { nome: "Mercúrio", densidade: 13500 },
     { nome: "Glicerina", densidade: 1260 },
     { nome: "Etanol", densidade: 789 },
+    
 ];
+
+
+
+const coresLiquidos: Record<string, string> = {
+  Água: "#3b82f6",
+  Óleo: "#fde047",
+  Mercúrio: "#d1d5db",
+  Glicerina: "#9333ea",
+  Etanol: "#16a34a",
+};
+
+function RecipienteVisual({ liquidos }: { liquidos: Liquido[] }) {
+  const [animar, setAnimar] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    setAnimar(liquidos.map(() => false));
+    liquidos.forEach((_, i) => {
+      setTimeout(() => {
+        setAnimar((old) => {
+          const copia = [...old];
+          copia[i] = true;
+          return copia;
+        });
+      }, i * 300);
+    });
+  }, [liquidos]);
+
+  const liquidosOrdenados = liquidos
+    .map((liq, index) => ({ ...liq, indexOriginal: index }))
+    .sort((a, b) => b.densidade - a.densidade);
+
+  return (
+    <>
+      <style>{`
+        @keyframes cair {
+          0% { height: 0; }
+          100% { height: var(--altura-final); }
+        }
+      `}</style>
+
+      <div className="mt-6">
+        <h2 className="font-bold mb-2">Recipiente com líquidos</h2>
+        <div className="w-48 h-[500px] border-4 border-gray-700 rounded overflow-hidden flex flex-col-reverse">
+          {liquidosOrdenados.map((liq, i) => {
+            const alturaPx = Math.max(10, liq.altura * 80);
+            return (
+              <div
+                key={i}
+                className="text-xs text-center text-white flex items-center justify-center"
+                style={{
+                  backgroundColor: coresLiquidos[liq.nome] || "#6b7280",
+                  height: animar[liq.indexOriginal] ? `${alturaPx}px` : "0px",
+                  borderTop: "1px solid #000",
+                  animation: animar[liq.indexOriginal] ? `cair 0.6s ease forwards` : "none",
+                  "--altura-final": `${alturaPx}px`,
+                  overflow: "hidden",
+                } as React.CSSProperties}
+              >
+                {animar[liq.indexOriginal] && `${liq.nome} (${liq.altura}m)`}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  );
+}
 
 export function InputForm() {
     const [liquidos, setLiquidos] = useState<Liquido[]>([]);
